@@ -1,4 +1,4 @@
-ef imageName = 'movies-loader'
+def imageName = 'movies-loader'
 def registry = 'https://registry.slowcoder.com'
 
 pipeline{
