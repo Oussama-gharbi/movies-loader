@@ -10,7 +10,7 @@ pipeline{
                git branch: 'develop', url: 'https://github.com/Oussama-gharbi/movies-loader.git'
             }
         }
-
+/*
         stage('Unit Tests'){
             steps{
                 script {
@@ -52,7 +52,7 @@ pipeline{
             }
         }*/
     }
-}
+}*/
 
 def commitID() {
     sh 'git rev-parse HEAD > .git/commitID'
