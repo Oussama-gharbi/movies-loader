@@ -46,9 +46,13 @@ environment {
         }
         
         stage('Analyze'){
+            steps{
+                script{
             def scannedImage = "${registry}/${imageName}:${tag} ${workspace}/Dockerfile"
             writeFile file: 'images', text: scannedImage
             anchore name: 'images'
+            }
+            }
         }
         
 
