@@ -3,8 +3,11 @@ def password = '*YT87az$$'
 def registry = 'https://registry.slowcoder.com'
 
 pipeline{
-    agent any
 
+    agent any
+environment {
+        tag = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
+    }
     stages{
         stage('Checkout'){
             steps{
@@ -35,8 +38,8 @@ pipeline{
                    sh 'echo $PASS | docker login -u $USER --password-stdin'
                  }
                   echo ' Docker push...'
-                  sh "docker tag movies-loader oussamagharbi/movies-loader:${commitID}"
-                  sh "docker push oussamagharbi/movies-loader:${commitID}"
+                  sh "docker tag movies-loader oussamagharbi/movies-loader:${tag}"
+                  sh "docker push oussamagharbi/movies-loader:${tag}"
                     //docker.build(imageName)
                 }
             }
@@ -55,10 +58,4 @@ pipeline{
             }
         }*/
     }
-}
-def commitID() {
-    sh 'git rev-parse HEAD > .git/commitID'
-    def commitID = readFile('.git/commitID').trim()
-    sh 'rm .git/commitID'
-    commitID
 }
