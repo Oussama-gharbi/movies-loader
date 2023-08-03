@@ -29,7 +29,7 @@ pipeline{
                    echo 'building docker image...'
                    sh 'docker build -t movies-loader .'
                     echo ' docker login...'
-                              sh 'docker login -u oussamagharbi -p *YT87az$$'
+                              sh "docker login -u oussamagharbi -p *YT87az$$"
                    /*withCredentials([usernamePassword(credentialsId: 'docker_hub_token', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
                     echo "$PASS"
                  sh "echo $PASS | docker login -u $USER --password-stdin"
