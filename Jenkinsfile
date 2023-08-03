@@ -1,93 +1,57 @@
-def imageName = 'mlabouardy/movies-loader'
-def registry = '305929695733.dkr.ecr.eu-west-3.amazonaws.com'
-def region = 'eu-west-3'
+ef imageName = 'movies-loader'
+def registry = 'https://registry.slowcoder.com'
 
-node('workers'){
-    try {
+pipeline{
+    agent any
+
+    stages{
         stage('Checkout'){
-            checkout scm
-            notifySlack('STARTED')
+            steps{
+                checkout scm
+            }
         }
 
         stage('Unit Tests'){
-            def imageTest= docker.build("${imageName}-test", "-f Dockerfile.test .")
-            imageTest.inside{
-                sh "python test_main.py"
+            steps{
+                script {
+                    def imageTest= docker.build("${imageName}-test", "-f Dockerfile.test .")
+                    imageTest.inside{
+                        sh "python test_main.py"
+                    }
+                }
             }
         }
 
         stage('Build'){
-            docker.build(imageName)
-        }
-
-        stage('Push'){
-            sh "\$(aws ecr get-login --no-include-email --region ${region}) || true"
-            docker.withRegistry("https://${registry}") {
-                docker.image(imageName).push(commitID())
-
-                if (env.BRANCH_NAME == 'develop') {
-                    docker.image(imageName).push('develop')
-                }
-
-                if (env.BRANCH_NAME == 'preprod') {
-                    docker.image(imageName).push('preprod')
-                }
-
-                if (env.BRANCH_NAME == 'master') {
-                    docker.image(imageName).push('latest')
+            steps{
+                script {
+                   
+                   echo 'building docker image...'
+                   sh 'docker build -t movies-loader .'
+                    echo ' docker login...'
+                   withCredentials([usernamePassword(credentialsId: 'docker_hub_token', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                 sh "echo $PASS | docker login -u $USER --password-stdin"
+                 }
+                  echo ' Docker push...'
+                  sh "docker tag $FIMAGE_NAME oussamagharbi/movies-loader:${commitID}"
+                  sh "docker push oussamagharbi/movies-loader:${commitID}"
+                    docker.build(imageName)
                 }
             }
         }
 
-        stage('Analyze'){
-            def scannedImage = "${registry}/${imageName}:${commitID()} ${workspace}/Dockerfile"
-            writeFile file: 'images', text: scannedImage
-            anchore name: 'images'
-        }
+        /*stage('Push'){
+            steps{
+                docker.withRegistry(registry, 'registry') {
+                        docker.image(imageName).push(commitID())
 
-        stage('Deploy'){
-            if(env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod'){
-                build job: "watchlist-deployment/${env.BRANCH_NAME}"
-            }
-
-            if(env.BRANCH_NAME == 'master'){
-                timeout(time: 2, unit: "HOURS") {
-                    input message: "Approve Deploy?", ok: "Yes"
+                        if (env.BRANCH_NAME == 'develop') {
+                            docker.image(imageName).push('develop')
+                        }
                 }
-                build job: "watchlist-deployment/master"
             }
-        }
-    } catch(e){
-        currentBuild.result = 'FAILED'
-        throw e
-    } finally {
-        notifySlack(currentBuild.result)
+        }*/
     }
-}
-
-def notifySlack(String buildStatus){
-    buildStatus =  buildStatus ?: 'SUCCESSFUL'
-    def colorCode = '#FF0000'
-    def subject = "Name: '${env.JOB_NAME}'\nStatus: ${buildStatus}\nBuild ID: ${env.BUILD_NUMBER}"
-    def summary = "${subject}\nMessage: ${commitMessage()}\nAuthor: ${commitAuthor()}\nURL: ${env.BUILD_URL}"
-
-    if (buildStatus == 'STARTED') {
-        colorCode = '#546e7a'
-    } else if (buildStatus == 'SUCCESSFUL') {
-        colorCode = '#2e7d32'
-    } else {
-        colorCode = '#c62828c'
-    }
-
-    slackSend (color: colorCode, message: summary)
-}
-
-
-def commitAuthor(){
-    sh 'git show -s --pretty=%an > .git/commitAuthor'
-    def commitAuthor = readFile('.git/commitAuthor').trim()
-    sh 'rm .git/commitAuthor'
-    commitAuthor
 }
 
 def commitID() {
@@ -95,11 +59,4 @@ def commitID() {
     def commitID = readFile('.git/commitID').trim()
     sh 'rm .git/commitID'
     commitID
-}
-
-def commitMessage() {
-    sh 'git log --format=%B -n 1 HEAD > .git/commitMessage'
-    def commitMessage = readFile('.git/commitMessage').trim()
-    sh 'rm .git/commitMessage'
-    commitMessage
 }
