@@ -30,11 +30,10 @@ pipeline{
                    echo 'building docker image...'
                    sh 'docker build -t movies-loader .'
                     echo ' docker login...'
-                              sh "docker login -u oussamagharbi -p ${password}"
-                   /*withCredentials([usernamePassword(credentialsId: 'docker_hub_token', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    echo "$PASS"
-                 sh "echo $PASS | docker login -u $USER --password-stdin"
-                 }*/
+                           //   sh "docker login -u oussamagharbi -p ${password}"
+                   withCredentials([usernamePassword(credentialsId: 'docker_hub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                   sh "echo $PASS | docker login -u $USER --password-stdin"
+                 }
                   echo ' Docker push...'
                   sh "docker tag movies-loader oussamagharbi/movies-loader:${commitID}"
                   sh "docker push oussamagharbi/movies-loader:${commitID}"
