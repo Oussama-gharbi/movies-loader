@@ -7,7 +7,7 @@ pipeline{
     stages{
         stage('Checkout'){
             steps{
-                checkout scm
+               git branch: 'develop', url: 'https://github.com/Oussama-gharbi/movies-loader.git'
             }
         }
 
