@@ -10,7 +10,7 @@ pipeline{
                git branch: 'develop', url: 'https://github.com/Oussama-gharbi/movies-loader.git'
             }
         }
-/*
+
         stage('Unit Tests'){
             steps{
                 script {
@@ -21,7 +21,7 @@ pipeline{
                 }
             }
         }
-
+/*
         stage('Build'){
             steps{
                 script {
