@@ -1,6 +1,6 @@
 def imageName = 'movies-loader'
 def password = '*YT87az$$'
-def registry = 'https://registry.slowcoder.com'
+def registry = 'oussamagharbi'
 
 pipeline{
 
@@ -43,6 +43,12 @@ environment {
                     //docker.build(imageName)
                 }
             }
+        }
+        
+        stage('Analyze'){
+            def scannedImage = "${registry}/${imageName}:${tag} ${workspace}/Dockerfile"
+            writeFile file: 'images', text: scannedImage
+            anchore name: 'images'
         }
         
 
