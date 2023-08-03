@@ -33,7 +33,7 @@ pipeline{
                  sh "echo $PASS | docker login -u $USER --password-stdin"
                  }
                   echo ' Docker push...'
-                  sh "docker tag $FIMAGE_NAME oussamagharbi/movies-loader:${commitID}"
+                  sh "docker tag movies-loader oussamagharbi/movies-loader:${commitID}"
                   sh "docker push oussamagharbi/movies-loader:${commitID}"
                     docker.build(imageName)
                 }
