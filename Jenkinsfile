@@ -32,7 +32,7 @@ pipeline{
                     echo ' docker login...'
                            //   sh "docker login -u oussamagharbi -p ${password}"
                    withCredentials([usernamePassword(credentialsId: 'docker_hub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                   sh "echo $PASS | docker login -u $USER --password-stdin"
+                   sh 'echo $PASS | docker login -u $USER --password-stdin'
                  }
                   echo ' Docker push...'
                   sh "docker tag movies-loader oussamagharbi/movies-loader:${commitID}"
