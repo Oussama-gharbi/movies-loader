@@ -21,7 +21,7 @@ pipeline{
                 }
             }
         }
-/*
+
         stage('Build'){
             steps{
                 script {
@@ -35,10 +35,11 @@ pipeline{
                   echo ' Docker push...'
                   sh "docker tag movies-loader oussamagharbi/movies-loader:${commitID}"
                   sh "docker push oussamagharbi/movies-loader:${commitID}"
-                    docker.build(imageName)
+                    //docker.build(imageName)
                 }
             }
         }
+        
 
         /*stage('Push'){
             steps{
@@ -52,4 +53,10 @@ pipeline{
             }
         }*/
     }
+}
+def commitMessage() {
+    sh 'git log --format=%B -n 1 HEAD > .git/commitMessage'
+    def commitMessage = readFile('.git/commitMessage').trim()
+    sh 'rm .git/commitMessage'
+    commitMessage
 }
